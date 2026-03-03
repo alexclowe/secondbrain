@@ -99,7 +99,7 @@
     },
     {
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
-      "apiVersion": "2024-05-15",
+      "apiVersion": "2024-02-15-preview",
       "name": "[concat(variables('cosmosAccountName'), '/secondbrain/thoughts')]",
       "properties": {
         "resource": {
@@ -345,8 +345,14 @@
                     "name": "@parameters('$connections')['teams']['connectionId']"
                   }
                 },
-                "body": {
-                  "NotificationUrl": "@{listCallbackUrl()}"
+                "subscribe": {
+                  "body": {
+                    "NotificationUrl": "@{listCallbackUrl()}"
+                  },
+                  "method": "post",
+                  "pathTemplate": {
+                    "template": "/trigger/beta/teams/{teamId}/channels/{channelId}/messages"
+                  }
                 },
                 "fetch": {
                   "method": "get",

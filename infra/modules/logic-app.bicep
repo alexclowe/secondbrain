@@ -38,8 +38,14 @@ resource logicApp 'Microsoft.Logic/workflows@2019-05-01' = {
                 name: '@parameters(\'$connections\')[\'teams\'][\'connectionId\']'
               }
             }
-            body: {
-              NotificationUrl: '@{listCallbackUrl()}'
+            subscribe: {
+              body: {
+                NotificationUrl: '@{listCallbackUrl()}'
+              }
+              method: 'post'
+              pathTemplate: {
+                template: '/trigger/beta/teams/{teamId}/channels/{channelId}/messages'
+              }
             }
             fetch: {
               method: 'get'
