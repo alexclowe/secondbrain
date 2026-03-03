@@ -1,4 +1,4 @@
-# Open Brain (Microsoft Edition) — Architecture
+# Second Brain (Microsoft Edition) — Architecture
 
 **Version:** 1.0  
 **Last Updated:** 2025-01-19  
@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-This architecture ports the original Supabase/Slack/OpenRouter Open Brain system to an Azure-native stack. Total estimated monthly cost: **$2-12**. All components use Azure Portal or browser-based setup — no CLI required.
+This architecture ports the original Supabase/Slack/OpenRouter Second Brain system to an Azure-native stack. Total estimated monthly cost: **$2-12**. All components use Azure Portal or browser-based setup — no CLI required.
 
 ---
 
@@ -190,7 +190,7 @@ openbrain-functions/
 - Native Azure Functions connector (no custom HTTP handling)
 - Can post rich adaptive cards (outgoing webhooks cannot)
 
-**Flow Design: "Capture Thought to Open Brain"**
+**Flow Design: "Capture Thought to Second Brain"**
 
 **Trigger:** "When a new channel message is posted" (Teams connector)  
 **Condition:** Message contains specific hashtag (e.g., `#brain` or `#capture`)  
@@ -214,7 +214,7 @@ openbrain-functions/
    {
      "type": "AdaptiveCard",
      "body": [
-       { "type": "TextBlock", "text": "✅ Captured to Open Brain!", "weight": "Bolder" },
+       { "type": "TextBlock", "text": "✅ Captured to Second Brain!", "weight": "Bolder" },
        { "type": "TextBlock", "text": "Type: @{outputs('Parse_JSON')?['metadata']['type']}" },
        { "type": "TextBlock", "text": "Topics: @{join(outputs('Parse_JSON')?['metadata']['topics'], ', ')}" }
      ]

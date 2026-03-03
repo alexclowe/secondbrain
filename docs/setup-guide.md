@@ -1,4 +1,4 @@
-# Open Brain: Setup Guide (Microsoft Edition)
+# Second Brain: Setup Guide (Microsoft Edition)
 
 ## 3 Steps. 7 Minutes. Zero Coding.
 
@@ -121,14 +121,14 @@ Use these values from the deployment outputs:
 Go to any Teams channel and type:
 
 ```
-#brain This is my first thought captured by Open Brain!
+#brain This is my first thought captured by Second Brain!
 ```
 
 Within a few seconds, you should see a reply:
 
-> ✅ **Captured to Open Brain!**
+> ✅ **Captured to Second Brain!**
 > Type: reference
-> Topics: open brain, first thought
+> Topics: second brain, first thought
 
 ### Test MCP Search
 

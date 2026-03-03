@@ -1,8 +1,8 @@
-# 🧠 Open Brain — Microsoft Edition
+# 🧠 Second Brain (Microsoft Edition)
 
 **Your personal AI memory. One database, one button, every AI you use.**
 
-Open Brain is a personal knowledge system backed by Azure Cosmos DB with vector search. Capture thoughts from Microsoft Teams, search them by meaning from GitHub Copilot, VS Code, or any MCP-compatible AI. One brain. All of them.
+Second Brain is a personal knowledge system backed by Azure Cosmos DB with vector search. Capture thoughts from Microsoft Teams, search them by meaning from GitHub Copilot, VS Code, or any MCP-compatible AI. One brain. All of them.
 
 ---
 
@@ -120,7 +120,7 @@ Fits easily in a free-tier or pay-as-you-go Azure subscription.
 ### From Teams
 Go to any channel and type:
 ```
-#brain This is my first thought captured by Open Brain!
+#brain This is my first thought captured by Second Brain!
 ```
 You should see a ✅ confirmation reply within a few seconds.
 

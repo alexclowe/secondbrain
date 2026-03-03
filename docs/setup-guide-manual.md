@@ -1,11 +1,11 @@
-# Build Your Open Brain (Microsoft Edition)
+# Build Your Second Brain (Microsoft Edition)
 ## Complete Setup Guide
 
 ---
 
 ## Introduction
 
-You're about to build **AI infrastructure** — not just another notes app. Your Open Brain is a personal database that understands what you're thinking. Type a thought into a Teams channel with a simple #brain tag. Within seconds, it's embedded with vector math, classified by type and topics, stored in your Azure database, and ready to be searched from GitHub Copilot, VS Code, or any AI tool you use.
+You're about to build **AI infrastructure** — not just another notes app. Your Second Brain is a personal database that understands what you're thinking. Type a thought into a Teams channel with a simple #brain tag. Within seconds, it's embedded with vector math, classified by type and topics, stored in your Azure database, and ready to be searched from GitHub Copilot, VS Code, or any AI tool you use.
 
 Every captured thought becomes a searchable memory, organized by meaning rather than folders. Ask your AI: *"Show me all decisions we made about authentication,"* and it searches your actual brain, not Google. This is semantic memory — the kind that compounds over time.
 
@@ -30,9 +30,9 @@ Here's what happens when you capture a thought:
    - Generates a vector embedding (mathematical fingerprint) via GitHub Models API
    - Extracts metadata: type (idea/question/todo), topics, people mentioned
    - Stores the complete thought in Azure Cosmos DB
-4. **Teams confirms** with an adaptive card: `✅ Captured to Open Brain! Type: idea | Topics: architecture, llm`
+4. **Teams confirms** with an adaptive card: `✅ Captured to Second Brain! Type: idea | Topics: architecture, llm`
 5. **You search later** in VS Code with GitHub Copilot:
-   - Copilot Chat loads your Open Brain via MCP protocol
+   - Copilot Chat loads your Second Brain via MCP protocol
    - You ask: *"What did we decide about caching?"*
    - Your brain searches itself — returns the exact thought with context
 6. **It connects everywhere**: GitHub Copilot, VS Code, or any AI that supports MCP
@@ -254,7 +254,7 @@ This is where you'll type thoughts with #brain tag.
 1. Open Microsoft Teams (web.teams.microsoft.com or your desktop app)
 2. Click **+ Create a team** or use an existing team you own
 3. Click **Create** → Choose team type: **Private** (just for you)
-4. Name: `Open Brain` (or whatever you like)
+4. Name: `Second Brain` (or whatever you like)
 
 #### 5.2 — Create a Channel
 
@@ -449,7 +449,7 @@ This is the automation that watches for #brain messages in Teams and sends them 
 
 #### 9.2 — Set Up the Trigger
 
-1. Flow name: `Capture Thought to Open Brain`
+1. Flow name: `Capture Thought to Second Brain`
 2. Choose trigger: Search for **Teams** → **When a new message is posted in a channel**
 3. Click **Create**
 
@@ -459,7 +459,7 @@ Fill in:
 
 | Field | Value |
 |-------|-------|
-| **Team** | Open Brain (the team you created in Step 5) |
+| **Team** | Second Brain (the team you created in Step 5) |
 | **Channel** | brain (the channel you created) |
 
 Then click **Add an action**
@@ -522,9 +522,9 @@ This sends the cleaned message content to your capture function.
 
    | Field | Value |
    |-------|-------|
-   | **Team** | Open Brain |
+   | **Team** | Second Brain |
    | **Channel** | brain |
-   | **Message** | `✅ Captured to your Open Brain!` |
+   | **Message** | `✅ Captured to your Second Brain!` |
 
 #### 9.8 — Save the Flow
 
@@ -548,7 +548,7 @@ Let's make sure everything works end-to-end.
 #### 10.2 — Check Results
 
 1. The Power Automate flow should trigger within a few seconds
-2. You should see a response message in Teams: `✅ Captured to your Open Brain!`
+2. You should see a response message in Teams: `✅ Captured to your Second Brain!`
 3. (Optional) Check your Azure Functions logs to see if the capture was successful:
    - Go to your Function App in the Azure Portal
    - Click **Monitor** (left sidebar)
@@ -780,13 +780,13 @@ Here's what this costs on Azure pay-as-you-go:
 
 ## Companion Prompts
 
-These are ready-to-use prompts that work with your brain and its MCP tools. Use them in GitHub Copilot or any AI connected to your Open Brain.
+These are ready-to-use prompts that work with your brain and its MCP tools. Use them in GitHub Copilot or any AI connected to your Second Brain.
 
 ### Prompt 1: Memory Migration
 *One-time: Extract everything an AI already knows about you and save to your brain*
 
 ```
-I want to save all the context you have about me to my Open Brain system.
+I want to save all the context you have about me to my Second Brain system.
 
 Here's what I'll do: I'll describe my background, goals, working style, and key context. You'll use the capture_thought tool to save extracted insights to my brain.
 
@@ -797,7 +797,7 @@ Ready? Ask me questions to understand me better, then save 10-15 key insights ab
 *Import from Notion, Obsidian, Apple Notes, or any text file*
 
 ```
-I have a lot of notes in [Notion/Obsidian/Apple Notes] that I want to import to my Open Brain.
+I have a lot of notes in [Notion/Obsidian/Apple Notes] that I want to import to my Second Brain.
 
 I'll paste them below. Please:
 1. Break them into individual thoughts (one idea per capture)
@@ -808,11 +808,11 @@ Here are my notes:
 [paste your notes]
 ```
 
-### Prompt 3: Open Brain Spark
+### Prompt 3: Second Brain Spark
 *Personalized use case interview*
 
 ```
-Help me discover the best ways to use my Open Brain.
+Help me discover the best ways to use my Second Brain.
 
 Ask me 5 questions about:
 - My role and workflow
@@ -876,7 +876,7 @@ Format output as:
 
 1. **Is the Power Automate flow turned on?**
    - Go to [flow.microsoft.com](https://flow.microsoft.com)
-   - Find your "Capture Thought to Open Brain" flow
+   - Find your "Capture Thought to Second Brain" flow
    - Make sure the toggle is **On**
 
 2. **Is the message in the right channel?**

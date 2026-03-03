@@ -1,4 +1,4 @@
-# One-Button Deploy — Open Brain (Microsoft Edition)
+# One-Button Deploy — Second Brain (Microsoft Edition)
 
 **Author:** Joy (Lead Architect)  
 **Date:** 2026-03-04  
@@ -308,7 +308,7 @@ resource teamsConnection 'Microsoft.Web/connections@2016-06-01' = {
   name: 'teams-connection'
   location: location
   properties: {
-    displayName: 'Open Brain Teams'
+    displayName: 'Second Brain Teams'
     api: {
       id: subscriptionResourceId('Microsoft.Web/locations/managedApis', location, 'teams')
     }
@@ -370,7 +370,7 @@ resource logicApp 'Microsoft.Logic/workflows@2019-05-01' = {
                 method: 'post'
                 body: {
                   body: {
-                    content: '<p>✅ <strong>Captured to Open Brain!</strong></p><p>Type: @{body(\'Call_Capture_Function\')?[\'metadata\']?[\'type\']}</p><p>Topics: @{join(body(\'Call_Capture_Function\')?[\'metadata\']?[\'topics\'], \', \')}</p>'
+                    content: '<p>✅ <strong>Captured to Second Brain!</strong></p><p>Type: @{body(\'Call_Capture_Function\')?[\'metadata\']?[\'type\']}</p><p>Topics: @{join(body(\'Call_Capture_Function\')?[\'metadata\']?[\'topics\'], \', \')}</p>'
                     contentType: 'html'
                   }
                 }
@@ -616,7 +616,7 @@ After the deployment completes (~5 minutes), the user clicks **"Outputs"** in th
 
 ---
 
-### 🎉 Open Brain Deployed Successfully!
+### 🎉 Second Brain Deployed Successfully!
 
 #### Step A: Authorize Teams Connection
 
@@ -665,7 +665,7 @@ Copy this JSON block into `.vscode/mcp.json` in any workspace:
 Open Teams, go to any channel, type:
 
 ```
-#brain This is my first thought captured by Open Brain!
+#brain This is my first thought captured by Second Brain!
 ```
 
 You should see a reply confirming the capture within a few seconds.
