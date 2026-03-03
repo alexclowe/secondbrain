@@ -2,7 +2,7 @@
 
 **Your personal AI memory. One database, one button, every AI you use.**
 
-Open Brain is a personal knowledge system backed by Azure Cosmos DB with vector search. Capture thoughts from Microsoft Teams, search them by meaning from Claude, ChatGPT, Cursor, or any MCP-compatible AI. One brain. All of them.
+Open Brain is a personal knowledge system backed by Azure Cosmos DB with vector search. Capture thoughts from Microsoft Teams, search them by meaning from GitHub Copilot, VS Code, or any MCP-compatible AI. One brain. All of them.
 
 ---
 
@@ -30,12 +30,47 @@ Open Brain is a personal knowledge system backed by Azure Cosmos DB with vector 
 
 ### Step 3: Connect Your AI (~1 min)
 
-From the deployment outputs, copy the **claudeDesktopConfig** value and paste it into your Claude Desktop config file:
+From the deployment outputs, copy the **copilotMcpConfig** value.
 
-- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
-- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+#### Option A: VS Code Workspace Config (Recommended)
 
-Restart Claude Desktop. You'll see "openbrain" in your MCP servers. Done.
+Create a file called `.vscode/mcp.json` in any workspace:
+
+```json
+{
+  "servers": {
+    "openbrain": {
+      "type": "http",
+      "url": "https://YOUR-FUNCTION-APP.azurewebsites.net/api/mcp",
+      "headers": {
+        "X-MCP-Access-Key": "YOUR-ACCESS-KEY"
+      }
+    }
+  }
+}
+```
+
+Replace the URL and key with your deployment output values. GitHub Copilot Chat will automatically discover the MCP server.
+
+#### Option B: VS Code User Settings (Available in All Workspaces)
+
+Open VS Code Settings (JSON) and add:
+
+```json
+{
+  "github.copilot.chat.mcp.servers": {
+    "openbrain": {
+      "type": "http",
+      "url": "https://YOUR-FUNCTION-APP.azurewebsites.net/api/mcp",
+      "headers": {
+        "X-MCP-Access-Key": "YOUR-ACCESS-KEY"
+      }
+    }
+  }
+}
+```
+
+Open GitHub Copilot Chat and ask a question — you'll see "openbrain" in the available tools. Done.
 
 ---
 
@@ -47,7 +82,7 @@ Teams (#brain message)
         → Azure Function (embed + classify)
             → Cosmos DB (store with vector)
 
-Claude / ChatGPT / Cursor
+GitHub Copilot / VS Code / Any MCP Client
     → MCP Server (search by meaning)
         → Cosmos DB (vector search)
 ```
@@ -89,8 +124,8 @@ Go to any channel and type:
 ```
 You should see a ✅ confirmation reply within a few seconds.
 
-### From Claude
-Ask Claude: *"Search my brain for recent thoughts"* — it will use the `search_thoughts` tool automatically.
+### From GitHub Copilot
+In VS Code, open Copilot Chat and ask: *"Search my brain for recent thoughts"* — it will use the `search_thoughts` tool automatically.
 
 ### From Command Line
 ```bash
@@ -116,7 +151,7 @@ curl -X POST "YOUR_MCP_ENDPOINT" \
 3. Check Function logs: Application Insights → Live Metrics → watch for incoming requests
 
 ### MCP not connecting
-1. Verify the URL in your Claude Desktop config matches the deployment output
+1. Verify the URL in your VS Code MCP config matches the deployment output
 2. Check the access key is correct
 3. Test with the curl command from deployment outputs
 

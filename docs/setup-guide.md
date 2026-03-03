@@ -66,22 +66,47 @@ When the deployment finishes:
 
 Go back to your deployment outputs (Resource Group → Deployments → your deployment → Outputs).
 
-### For Claude Desktop
+### For GitHub Copilot in VS Code (Recommended)
 
-1. Copy the **claudeDesktopConfig** output value
-2. Open your Claude Desktop config file:
-   - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
-   - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-3. Paste the JSON into the file (if the file already has content, merge the `mcpServers` section)
-4. Restart Claude Desktop
+1. Copy the **mcpEndpoint** and **mcpAccessKey** from the deployment outputs
+2. In your VS Code workspace, create `.vscode/mcp.json`:
 
-### For VS Code (GitHub Copilot Chat)
+```json
+{
+  "servers": {
+    "openbrain": {
+      "type": "http",
+      "url": "PASTE_YOUR_mcpEndpoint_HERE",
+      "headers": {
+        "X-MCP-Access-Key": "PASTE_YOUR_mcpAccessKey_HERE"
+      }
+    }
+  }
+}
+```
 
-1. Copy the **mcpEndpoint** and **mcpAccessKey** from the outputs
-2. In VS Code, open Settings → search "MCP"
-3. Add a new MCP server with the endpoint URL and access key header
+3. Open GitHub Copilot Chat — "openbrain" appears in available tools
 
-### For Any MCP Client
+### For VS Code User Settings (All Workspaces)
+
+1. Open VS Code → Settings (JSON)
+2. Add the MCP server under `github.copilot.chat.mcp.servers`:
+
+```json
+{
+  "github.copilot.chat.mcp.servers": {
+    "openbrain": {
+      "type": "http",
+      "url": "PASTE_YOUR_mcpEndpoint_HERE",
+      "headers": {
+        "X-MCP-Access-Key": "PASTE_YOUR_mcpAccessKey_HERE"
+      }
+    }
+  }
+}
+```
+
+### For Any Other MCP Client
 
 Use these values from the deployment outputs:
 - **URL:** `mcpEndpoint` output
@@ -107,11 +132,11 @@ Within a few seconds, you should see a reply:
 
 ### Test MCP Search
 
-Open Claude Desktop and ask:
+Open GitHub Copilot Chat in VS Code and ask:
 
 > "Search my brain for recent thoughts"
 
-Claude will use the `search_thoughts` tool and return your captured thought.
+Copilot will use the `search_thoughts` tool and return your captured thought.
 
 ### Test via Command Line (Optional)
 
@@ -141,7 +166,7 @@ Azure Cosmos DB
     │  ← ← ← Azure Function: /api/mcp (MCP JSON-RPC 2.0)
     │              ▲
     │              │
-Claude Desktop / VS Code / ChatGPT / Cursor
+GitHub Copilot / VS Code / Any MCP Client
     (search by meaning, browse recent, capture from conversation)
 ```
 

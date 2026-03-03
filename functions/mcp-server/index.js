@@ -2,7 +2,7 @@
  * MCP Server — Azure Function
  * 
  * Implements Model Context Protocol (JSON-RPC 2.0) over HTTP
- * Provides 4 tools for Claude Desktop / VS Code to interact with Open Brain
+ * Provides 4 tools for GitHub Copilot / VS Code / any MCP client to interact with Open Brain
  * 
  * MCP Protocol: https://spec.modelcontextprotocol.io/specification/2024-11-05/
  * Transport: Streamable HTTP (handles both POST for messages and GET for SSE)

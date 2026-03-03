@@ -120,8 +120,8 @@ output captureEndpoint string = '${functionApp.outputs.functionAppUrl}/api/captu
 output functionAppName string = functionApp.outputs.functionAppName
 output teamsAuthLink string = '${environment().portal}/#blade/Microsoft.Azure.EAPortal/ApiConnectionBlade/id/${logicApp.outputs.teamsConnectionId}'
 
-// Claude Desktop config JSON (ready to copy-paste)
-output claudeDesktopConfig string = '{ "mcpServers": { "openbrain": { "transport": { "type": "http", "baseUrl": "${functionApp.outputs.functionAppUrl}/api/mcp" }, "headers": { "X-MCP-Access-Key": "${mcpAccessKey}" } } } }'
+// VS Code MCP config JSON (ready to copy-paste into .vscode/mcp.json)
+output copilotMcpConfig string = '{ "servers": { "openbrain": { "type": "http", "url": "${functionApp.outputs.functionAppUrl}/api/mcp", "headers": { "X-MCP-Access-Key": "${mcpAccessKey}" } } } }'
 
 // Test command
 output testCommand string = 'curl -X POST "${functionApp.outputs.functionAppUrl}/api/mcp" -H "Content-Type: application/json" -H "X-MCP-Access-Key: ${mcpAccessKey}" -d \'{"jsonrpc":"2.0","method":"tools/list","id":1}\''

@@ -21,7 +21,7 @@ This architecture ports the original Supabase/Slack/OpenRouter Open Brain system
 | **OpenRouter gpt-4o-mini** | **GitHub Models API** (gpt-4o or gpt-4o-mini) | Free via GitHub account, same structured extraction capabilities |
 | **Slack bot** | **Power Automate Flow** (Teams webhook trigger) | No-code browser setup, official Microsoft migration path (Slack webhooks deprecated), posts to Teams channel |
 | **Supabase Row Level Security** | **Azure Function App Keys** + connection string security | Function-level keys (host key for MCP, function key per endpoint), Cosmos connection string in Azure Key Vault optional |
-| **MCP Server on Edge Functions** | **MCP Server on Azure Function** (HTTP trigger with Streamable transport) | Same protocol, HTTP/SSE transport, accessible from Claude Desktop/VS Code |
+| **MCP Server on Edge Functions** | **MCP Server on Azure Function** (HTTP trigger with Streamable transport) | Same protocol, HTTP/SSE transport, accessible from VS Code/GitHub Copilot |
 
 ---
 
@@ -145,7 +145,7 @@ openbrain-functions/
 ### Function 2: `/api/mcp` (MCP Server)
 
 **Trigger:** HTTP POST (SSE transport for streaming)  
-**Auth:** Custom header `X-MCP-Access-Key` (user sets in Claude Desktop config)  
+**Auth:** Custom header `X-MCP-Access-Key` (user sets in VS Code MCP config)  
 **Protocol:** MCP Streamable HTTP (Server-Sent Events)
 
 **MCP Tools Implemented:**
@@ -167,7 +167,7 @@ openbrain-functions/
 
 4. **`capture_thought`**
    - Input: `{ content: string, source?: string }`
-   - Logic: Same as `/api/capture` but called from Claude/VS Code
+   - Logic: Same as `/api/capture` but called from Copilot/VS Code
    - Output: `{ id, message, metadata }`
 
 **RU Estimate per tool:**
@@ -310,9 +310,9 @@ const metadata = JSON.parse(response.choices[0].message.content);
 **Transport:** Streamable HTTP (Server-Sent Events over HTTPS)  
 **Hosting:** Azure Function with HTTP trigger at `/api/mcp`
 
-### Configuration for Claude Desktop
+### Configuration for GitHub Copilot (VS Code)
 
-**File:** `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
+**File:** `.vscode/mcp.json` in any workspace, or add to VS Code User Settings under `github.copilot.chat.mcp.servers`
 
 ```json
 {
@@ -481,8 +481,8 @@ secondbrain/                    # Repository root
 
 ### Phase 2: MCP Server
 - Implement `/api/mcp` function with 4 tools
-- Configure Claude Desktop to connect
-- **Deliverable:** Claude can search/browse thoughts via MCP
+- Configure GitHub Copilot in VS Code to connect
+- **Deliverable:** GitHub Copilot can search/browse thoughts via MCP
 
 ### Phase 3: Documentation
 - Write `docs/setup-guide.md` with screenshots

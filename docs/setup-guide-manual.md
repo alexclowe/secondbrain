@@ -5,7 +5,7 @@
 
 ## Introduction
 
-You're about to build **AI infrastructure** — not just another notes app. Your Open Brain is a personal database that understands what you're thinking. Type a thought into a Teams channel with a simple #brain tag. Within seconds, it's embedded with vector math, classified by type and topics, stored in your Azure database, and ready to be searched from Claude, ChatGPT, VS Code, or any AI tool you use.
+You're about to build **AI infrastructure** — not just another notes app. Your Open Brain is a personal database that understands what you're thinking. Type a thought into a Teams channel with a simple #brain tag. Within seconds, it's embedded with vector math, classified by type and topics, stored in your Azure database, and ready to be searched from GitHub Copilot, VS Code, or any AI tool you use.
 
 Every captured thought becomes a searchable memory, organized by meaning rather than folders. Ask your AI: *"Show me all decisions we made about authentication,"* and it searches your actual brain, not Google. This is semantic memory — the kind that compounds over time.
 
@@ -31,13 +31,13 @@ Here's what happens when you capture a thought:
    - Extracts metadata: type (idea/question/todo), topics, people mentioned
    - Stores the complete thought in Azure Cosmos DB
 4. **Teams confirms** with an adaptive card: `✅ Captured to Open Brain! Type: idea | Topics: architecture, llm`
-5. **You search later** in Claude Desktop:
-   - Claude loads your Open Brain via MCP protocol
+5. **You search later** in VS Code with GitHub Copilot:
+   - Copilot Chat loads your Open Brain via MCP protocol
    - You ask: *"What did we decide about caching?"*
    - Your brain searches itself — returns the exact thought with context
-6. **It connects everywhere**: Claude, ChatGPT, VS Code Copilot, GitHub Copilot Chat, any AI that supports MCP
+6. **It connects everywhere**: GitHub Copilot, VS Code, or any AI that supports MCP
 
-**The architecture in one sentence:** Teams message → Power Automate webhook → Azure Function → GitHub Models API → Azure Cosmos DB with vector index → MCP server → Claude/AI.
+**The architecture in one sentence:** Teams message → Power Automate webhook → Azure Function → GitHub Models API → Azure Cosmos DB with vector index → MCP server → GitHub Copilot/AI.
 
 ---
 
@@ -304,7 +304,7 @@ This is the code that captures thoughts, generates embeddings, and makes your br
 The Azure Functions code is in the `/functions` folder of this repository. It includes:
 
 - **`capture/index.js`** — HTTP endpoint that captures thoughts from Teams
-- **`mcp-server/index.js`** — MCP server that makes your brain searchable from Claude
+- **`mcp-server/index.js`** — MCP server that makes your brain searchable from GitHub Copilot
 - **`shared/`** — Helper code for Cosmos DB, GitHub Models, authentication
 
 **For now:** We've prepared the code structure. You'll copy the functions into Azure.
@@ -562,45 +562,47 @@ Let's make sure everything works end-to-end.
 
 ## Part 2: Making Your Brain Searchable (MCP Server)
 
-Now we'll make your brain accessible from Claude, ChatGPT, and any AI tool.
+Now we'll make your brain accessible from GitHub Copilot and any AI tool.
 
-### Step 11: Set Up Claude Desktop to Use Your Brain
+### Step 11: Set Up GitHub Copilot to Use Your Brain
 
-Claude Desktop (the app on your computer) can connect to your brain via the MCP protocol.
+GitHub Copilot Chat in VS Code can connect to your brain via the MCP protocol.
 
-#### 11.1 — Install Claude Desktop
+#### 11.1 — Open VS Code
 
-1. Go to [claude.ai/download](https://claude.ai/download)
-2. Download and install Claude Desktop (free)
+1. Open Visual Studio Code (install from [code.visualstudio.com](https://code.visualstudio.com) if needed)
+2. Make sure the GitHub Copilot extension is installed
 
-#### 11.2 — Locate Your MCP Configuration File
+#### 11.2 — Create Your MCP Configuration
 
-**On Mac:**
-```
-~/Library/Application Support/Claude/claude_desktop_config.json
-```
+**Option A: Workspace config (single project)**
 
-**On Windows:**
-```
-%APPDATA%\Claude\claude_desktop_config.json
-```
-
-1. Open your file browser
-2. Navigate to the path above
-3. If the file doesn't exist, create a new text file named `claude_desktop_config.json`
-
-#### 11.3 — Add Your Brain to Claude's MCP Servers
-
-Edit (or create) the `claude_desktop_config.json` file:
+Create a file called `.vscode/mcp.json` in any workspace folder:
 
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "openbrain": {
-      "transport": {
-        "type": "http",
-        "baseUrl": "https://openbrain-functions.azurewebsites.net/api/mcp"
-      },
+      "type": "http",
+      "url": "https://openbrain-functions.azurewebsites.net/api/mcp",
+      "headers": {
+        "X-MCP-Access-Key": "YOUR-MCP-ACCESS-KEY-HERE"
+      }
+    }
+  }
+}
+```
+
+**Option B: User settings (all workspaces)**
+
+Open VS Code → Settings (JSON) and add:
+
+```json
+{
+  "github.copilot.chat.mcp.servers": {
+    "openbrain": {
+      "type": "http",
+      "url": "https://openbrain-functions.azurewebsites.net/api/mcp",
       "headers": {
         "X-MCP-Access-Key": "YOUR-MCP-ACCESS-KEY-HERE"
       }
@@ -613,27 +615,26 @@ Replace:
 - `openbrain-functions.azurewebsites.net` with your actual Function App URL (from Step 8.1)
 - `YOUR-MCP-ACCESS-KEY-HERE` with the MCP access key you created in Step 7.2
 
-#### 11.4 — Restart Claude Desktop
+#### 11.3 — Verify the Connection
 
-1. Close Claude Desktop completely
-2. Reopen it
-3. You should see a new "Open Brain" section in the Tools panel
+1. Open GitHub Copilot Chat in VS Code
+2. You should see **openbrain** in the available MCP tools
 
 **Your Credential Tracker (Part 6):**
 ```
-[ ] Claude Desktop MCP configured
+[ ] GitHub Copilot MCP configured
 ```
 
 ---
 
-### Step 12: Use Your Brain in Claude
+### Step 12: Use Your Brain in GitHub Copilot
 
 Now test the MCP connection.
 
-#### 12.1 — Open Claude Desktop
+#### 12.1 — Open Copilot Chat
 
-1. Start a new conversation
-2. At the bottom, you should see **Tools** including your new **openbrain** server
+1. Start a new Copilot Chat conversation in VS Code
+2. You should see **openbrain** listed in available tools
 
 #### 12.2 — Try a Search
 
@@ -641,7 +642,7 @@ Type a message like:
 
 > Search my brain for thoughts about vector search.
 
-Claude should:
+Copilot should:
 1. Use the `search_thoughts` tool from your MCP server
 2. Query your Azure Cosmos DB
 3. Return results from your captured thoughts
@@ -653,7 +654,7 @@ Your brain exposes four MCP tools:
 1. **`search_thoughts`** — Search by natural language query
 2. **`browse_recent`** — See your most recent captures
 3. **`brain_stats`** — See how many thoughts you have, top topics, etc.
-4. **`capture_thought`** — Add a new thought directly from Claude
+4. **`capture_thought`** — Add a new thought directly from Copilot
 
 **Example prompts to try:**
 
@@ -670,24 +671,15 @@ Your brain exposes four MCP tools:
 
 Your MCP server works with any AI that supports the MCP protocol.
 
-#### For ChatGPT (with browser mode):
+#### For Any MCP-Compatible Tool:
 
-1. Go to [ChatGPT.com](https://chatgpt.com)
-2. In "Canvas" mode, you can configure external data sources
-3. Add your MCP server URL and access key
+Use the MCP endpoint URL and access key from your deployment outputs. The connection details are:
 
-#### For VS Code Copilot:
+- **URL:** `https://YOUR-FUNCTION-APP.azurewebsites.net/api/mcp`
+- **Auth header:** `X-MCP-Access-Key: YOUR-ACCESS-KEY`
+- **Protocol:** JSON-RPC 2.0 over HTTP
 
-1. Install the **MCP for VS Code** extension
-2. Configure it with your Function App URL and MCP access key
-3. Copilot will have tools to search your brain while you code
-
-#### For GitHub Copilot Chat:
-
-1. Similar configuration to VS Code
-2. Your brain becomes searchable while working in GitHub
-
-**For other tools:** Check their MCP integration documentation.
+Check the tool's MCP integration documentation for the specific configuration format.
 
 ---
 
@@ -716,16 +708,16 @@ Teams shows confirmation: ✅ Captured!
 ### Search Flow
 
 ```
-Claude asks: "Show me thoughts about vector search"
+Copilot asks: "Show me thoughts about vector search"
     ↓
-Claude's MCP client calls your /api/mcp endpoint with query
+Copilot's MCP client calls your /api/mcp endpoint with query
     ↓
 MCP function:
     1. Converts query to embedding (same model as capture)
     2. Runs VectorDistance query in Cosmos DB: "Find documents where embedding is similar to query"
     3. Returns top 10 results
     ↓
-Claude displays results to you with full context
+Copilot displays results to you with full context
 ```
 
 ### Why This Works
@@ -788,7 +780,7 @@ Here's what this costs on Azure pay-as-you-go:
 
 ## Companion Prompts
 
-These are ready-to-use prompts that work with your brain and its MCP tools. Use them in Claude, ChatGPT, or any AI connected to your Open Brain.
+These are ready-to-use prompts that work with your brain and its MCP tools. Use them in GitHub Copilot or any AI connected to your Open Brain.
 
 ### Prompt 1: Memory Migration
 *One-time: Extract everything an AI already knows about you and save to your brain*
@@ -950,32 +942,27 @@ Format output as:
 
 ---
 
-### **Problem: Claude Desktop can't find your brain**
+### **Problem: GitHub Copilot can't find your brain**
 
 **Symptoms:**
-- You open Claude and don't see your Open Brain in the Tools panel
+- You open Copilot Chat and don't see "openbrain" in available tools
 - Or it shows "Unable to connect"
 
 **Check these:**
 
-1. **Did you restart Claude Desktop after configuring MCP?**
-   - Close it completely (Command+Q or Ctrl+Q)
-   - Reopen it
-   - Check the Tools panel again
-
-2. **Is your MCP configuration file correct?**
-   - Open `claude_desktop_config.json` (see Step 11.2)
+1. **Is your MCP configuration correct?**
+   - Open your `.vscode/mcp.json` file (or check VS Code Settings JSON)
    - Make sure the JSON is valid (no syntax errors)
    - Double-check your Function App URL — it should match exactly
    - Your MCP access key should match what you set in Step 7.2
 
-3. **Is your Azure Function running?**
+2. **Is your Azure Function running?**
    - Go to Azure Portal → Your Function App
    - Click **Overview**
    - Status should show "Running" (green)
    - If it's stopped, click the **Start** button
 
-4. **Test the MCP endpoint directly**
+3. **Test the MCP endpoint directly**
    - Open a terminal/PowerShell
    - Run:
      ```bash
@@ -987,18 +974,12 @@ Format output as:
    - If you get a response (not a 401 error), your endpoint is working
    - If you get `401`, your access key is wrong
 
-5. **Check Claude's error logs**
-   - Claude Desktop logs are in:
-     - **Mac:** `~/Library/Logs/Claude/`
-     - **Windows:** `%APPDATA%\Claude\logs\`
-   - Look for errors mentioning your MCP server URL
-
 ---
 
 ### **Problem: MCP Tools (search, browse, etc.) return no results**
 
 **Symptoms:**
-- You ask Claude to search your brain, and it says "no results"
+- You ask Copilot to search your brain, and it says "no results"
 - Or the tool runs but returns empty
 
 **Check these:**
@@ -1077,7 +1058,7 @@ Format output as:
 | `COSMOS_ENDPOINT is undefined` | Missing env var in Azure Function | Add to Function App Configuration (Step 7) |
 | `401 Unauthorized` on GitHub API | Bad GitHub PAT | Regenerate token in GitHub Settings (Step 4) |
 | `Cannot POST /api/capture` | Function not deployed | Redeploy using VS Code or Portal (Step 6) |
-| `Header X-MCP-Access-Key not found` | Missing auth header in MCP request | Check Claude config file (Step 11.3) |
+| `Header X-MCP-Access-Key not found` | Missing auth header in MCP request | Check MCP config file (Step 11.2) |
 | `VectorDistance query failed` | Cosmos DB vector index not applied | Reapply indexing policy (Step 2.4) |
 | `Teams channel not found` | Power Automate looking for wrong channel | Edit flow, select correct Team and Channel (Step 9) |
 | `Message contains #brain but no trigger` | Power Automate flow is off | Turn on the flow in flow.microsoft.com (Step 9) |
@@ -1092,7 +1073,7 @@ Seriously. You now have:
 ✅ **Semantic vector database** — Cosmos DB with 1536-dimensional embeddings  
 ✅ **Serverless compute** — Azure Functions running your brain's logic  
 ✅ **AI embeddings + extraction** — GitHub Models API generating metadata  
-✅ **Conversational interface** — Teams capture, Claude/ChatGPT search  
+✅ **Conversational interface** — Teams capture, GitHub Copilot search  
 ✅ **Automation engine** — Power Automate connecting it all  
 ✅ **Cost-effective infrastructure** — ~$2-5/month, zero coding required  
 ✅ **Portable brain** — MCP protocol means it works with any AI  
@@ -1107,7 +1088,7 @@ Seriously. You now have:
 **What you can do next:**
 
 1. **Import your existing notes** (use Prompt 2: Second Brain Migration)
-2. **Train Claude on your thinking** (use Prompt 1: Memory Migration)
+2. **Train Copilot on your thinking** (use Prompt 1: Memory Migration)
 3. **Run weekly reviews** (use Prompt 5: Weekly Review)
 4. **Add your brain to VS Code** (configure MCP for GitHub Copilot)
 5. **Share insights** (browse_recent tool shows your thinking over time)
@@ -1157,8 +1138,8 @@ STEP 8 (Azure Functions):
 STEP 7 (Function Environment):
 [ ] MCP Access Key: (whatever you created)
 
-STEP 11 (Claude Desktop):
-[ ] Claude Desktop MCP Configured (openbrain server added)
+STEP 11 (GitHub Copilot):
+[ ] GitHub Copilot MCP Configured (openbrain server added)
 ```
 
 ---

@@ -500,9 +500,9 @@
       "type": "string",
       "value": "[concat(environment().portal, '/#blade/Microsoft.Azure.EAPortal/ApiConnectionBlade/id/', resourceId('Microsoft.Web/connections', variables('teamsConnectionName')))]"
     },
-    "claudeDesktopConfig": {
+    "copilotMcpConfig": {
       "type": "string",
-      "value": "[concat('{ \"mcpServers\": { \"openbrain\": { \"transport\": { \"type\": \"http\", \"baseUrl\": \"https://', reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2023-12-01').defaultHostName, '/api/mcp\" }, \"headers\": { \"X-MCP-Access-Key\": \"', variables('mcpAccessKey'), '\" } } } }')]"
+      "value": "[concat('{ \"servers\": { \"openbrain\": { \"type\": \"http\", \"url\": \"https://', reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2023-12-01').defaultHostName, '/api/mcp\", \"headers\": { \"X-MCP-Access-Key\": \"', variables('mcpAccessKey'), '\" } } } }')]"
     },
     "testCommand": {
       "type": "string",

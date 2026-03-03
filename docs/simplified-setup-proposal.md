@@ -83,11 +83,11 @@ That's it for infrastructure. No PAT. No connection strings. No environment vari
 
 The deployment outputs page shows:
 
-1. **Claude Desktop config JSON** — ready to copy-paste into `%APPDATA%\Claude\claude_desktop_config.json`
+1. **VS Code MCP config JSON** — ready to copy-paste into `.vscode/mcp.json`
 2. **MCP endpoint URL** — with the auto-generated access key embedded
 3. **Test curl command** — to verify the deployment works
 
-User copies the JSON block, pastes it into their Claude Desktop config file, restarts Claude. Done.
+User copies the JSON block, pastes it into their `.vscode/mcp.json` file. Done.
 
 ### Can we eliminate any steps?
 
@@ -628,10 +628,21 @@ Sign in with your Microsoft account and click "Allow." This takes 30 seconds.
 
 #### Step B: Configure Your AI Assistant
 
-Copy this JSON block into your Claude Desktop config file:
+Copy this JSON block into `.vscode/mcp.json` in any workspace:
 
-**Windows:** `%APPDATA%\Claude\claude_desktop_config.json`  
-**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+```json
+{
+  "servers": {
+    "openbrain": {
+      "type": "http",
+      "url": "https://func-openbrain-xxx.azurewebsites.net/api/mcp",
+      "headers": {
+        "X-MCP-Access-Key": "your-key-here"
+      }
+    }
+  }
+}
+```
 
 ```json
 {
@@ -789,7 +800,7 @@ For users where nothing automated works, the old manual guide is preserved at `d
 |------|-------------|
 | Fresh deploy test | Click Deploy button from a clean Azure subscription |
 | Teams capture test | Send `#brain` message → see confirmation reply |
-| MCP search test | Claude Desktop connects → search returns results |
+| MCP search test | GitHub Copilot Chat connects → search returns results |
 | Fallback: GitHub Models | Set `AI_PROVIDER=github`, verify PAT-based flow works |
 | Fallback: Power Automate | Disable Logic App, set up Power Automate manually, verify capture |
 | Teardown test | Delete resource group, verify clean removal |
