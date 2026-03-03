@@ -1,0 +1,221 @@
+{
+  "name": "Capture Thought to Open Brain",
+  "description": "Automatically captures thoughts posted in Microsoft Teams with #brain or #capture hashtag and stores them in your Open Brain using Azure Functions.",
+  "version": "1.0.0",
+  "instructions": "This is a simplified template for building the Power Automate flow manually. Follow these steps in Power Automate designer:",
+  
+  "steps": [
+    {
+      "step": 1,
+      "action": "Trigger: When a new channel message is posted",
+      "connector": "Microsoft Teams",
+      "configuration": {
+        "description": "Monitors a specific Teams channel for new messages",
+        "parameters": {
+          "Team": "<SELECT YOUR TEAM>",
+          "Channel": "<SELECT YOUR CHANNEL>"
+        },
+        "notes": "You must have access to the team and channel you select"
+      }
+    },
+    {
+      "step": 2,
+      "action": "Condition: Check if message contains hashtag",
+      "type": "Condition",
+      "configuration": {
+        "description": "Only process messages with #brain or #capture hashtag",
+        "condition": {
+          "field": "@{triggerOutputs()?['body/body/content']}",
+          "operator": "contains",
+          "value": "#brain"
+        },
+        "orCondition": {
+          "field": "@{triggerOutputs()?['body/body/content']}",
+          "operator": "contains",
+          "value": "#capture"
+        },
+        "notes": "Use 'Or' condition in Power Automate to check for either hashtag"
+      }
+    },
+    {
+      "step": 3,
+      "action": "Compose: Clean message content",
+      "type": "Compose",
+      "configuration": {
+        "description": "Remove hashtag and trim whitespace from message",
+        "inputs": "@{replace(replace(triggerOutputs()?['body/body/content'], '#brain', ''), '#capture', '')}",
+        "notes": "This removes both hashtags. Add trim() function if needed: trim(replace(...))"
+      }
+    },
+    {
+      "step": 4,
+      "action": "HTTP: POST to Azure Function",
+      "connector": "HTTP",
+      "configuration": {
+        "description": "Send the cleaned message to your capture Azure Function",
+        "method": "POST",
+        "uri": "https://<YOUR-FUNCTION-APP>.azurewebsites.net/api/capture?code=<YOUR-FUNCTION-KEY>",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "userId": "@{triggerOutputs()?['body/from/user/id']}",
+          "content": "@{outputs('Compose')}",
+          "source": "teams"
+        },
+        "notes": [
+          "Replace <YOUR-FUNCTION-APP> with your actual Azure Function App name",
+          "Replace <YOUR-FUNCTION-KEY> with the function key from Azure Portal",
+          "To get function key: Azure Portal → Function App → Functions → capture → Function Keys → Copy 'default' key"
+        ]
+      }
+    },
+    {
+      "step": 5,
+      "action": "Parse JSON: Parse function response",
+      "type": "Parse JSON",
+      "configuration": {
+        "description": "Parse the JSON response from the Azure Function",
+        "content": "@{body('HTTP')}",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "message": { "type": "string" },
+            "metadata": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string" },
+                "topics": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "people": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "actionItems": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "notes": "Click 'Use sample payload to generate schema' and paste a sample response from your function for easier setup"
+      }
+    },
+    {
+      "step": 6,
+      "action": "Teams: Reply with message",
+      "connector": "Microsoft Teams",
+      "configuration": {
+        "description": "Post a confirmation reply in the Teams thread using an adaptive card",
+        "action": "Post adaptive card in a chat or channel",
+        "parameters": {
+          "Team": "@{triggerOutputs()?['body/channelId']}",
+          "Channel": "@{triggerOutputs()?['body/id']}",
+          "Message": "@{triggerOutputs()?['body/id']}",
+          "Adaptive Card": {
+            "type": "AdaptiveCard",
+            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+            "version": "1.4",
+            "body": [
+              {
+                "type": "TextBlock",
+                "text": "✅ Captured to Open Brain!",
+                "weight": "Bolder",
+                "size": "Medium",
+                "color": "Good"
+              },
+              {
+                "type": "FactSet",
+                "facts": [
+                  {
+                    "title": "Type:",
+                    "value": "@{body('Parse_JSON')?['metadata']?['type']}"
+                  },
+                  {
+                    "title": "Topics:",
+                    "value": "@{join(body('Parse_JSON')?['metadata']?['topics'], ', ')}"
+                  },
+                  {
+                    "title": "People:",
+                    "value": "@{if(empty(body('Parse_JSON')?['metadata']?['people']), 'None', join(body('Parse_JSON')?['metadata']?['people'], ', '))}"
+                  },
+                  {
+                    "title": "Action Items:",
+                    "value": "@{if(empty(body('Parse_JSON')?['metadata']?['actionItems']), 'None', join(body('Parse_JSON')?['metadata']?['actionItems'], ', '))}"
+                  }
+                ]
+              },
+              {
+                "type": "TextBlock",
+                "text": "ID: @{body('Parse_JSON')?['id']}",
+                "size": "Small",
+                "color": "Accent",
+                "wrap": true
+              }
+            ]
+          }
+        },
+        "notes": [
+          "The adaptive card will be posted as a reply to the original message",
+          "Users will see a formatted confirmation with extracted metadata",
+          "If any field is empty, it will show 'None' instead of blank"
+        ]
+      }
+    }
+  ],
+  
+  "deployment_instructions": {
+    "title": "How to Create This Flow",
+    "steps": [
+      "1. Go to https://make.powerautomate.com",
+      "2. Click 'Create' → 'Automated cloud flow'",
+      "3. Search for 'Microsoft Teams' trigger and select 'When a new channel message is posted'",
+      "4. Follow steps 1-6 above, adding each action in order",
+      "5. Save the flow with a descriptive name (e.g., 'Open Brain Capture')",
+      "6. Test by posting '#brain Test thought' in your Teams channel"
+    ],
+    "prerequisites": [
+      "Microsoft 365 account with Teams access",
+      "Azure Function App deployed with /api/capture endpoint",
+      "Function key from Azure Portal (Functions → capture → Function Keys)",
+      "Permission to create flows in your organization"
+    ],
+    "troubleshooting": {
+      "flow_not_triggering": "Ensure you selected the correct Team and Channel in step 1",
+      "http_401_error": "Check that your function key is correct and not expired",
+      "http_500_error": "Check Azure Function logs in Application Insights for errors",
+      "adaptive_card_not_showing": "Verify the Parse JSON schema matches your function response",
+      "no_topics_extracted": "The LLM might need better content - try more descriptive thoughts"
+    }
+  },
+  
+  "example_usage": {
+    "input_message": "#brain Discussed with Alice about implementing vector search for the knowledge base. Need to evaluate Cosmos DB vs Azure AI Search. Action: Schedule follow-up meeting next week.",
+    "expected_output": {
+      "confirmation": "✅ Captured to Open Brain!",
+      "metadata": {
+        "type": "meeting_note",
+        "topics": ["vector search", "knowledge base", "azure"],
+        "people": ["Alice"],
+        "actionItems": ["Schedule follow-up meeting next week"],
+        "projects": ["knowledge base"]
+      }
+    }
+  },
+  
+  "notes": [
+    "This is a MANUAL SETUP GUIDE, not an importable flow JSON",
+    "Power Automate flow exports are complex and version-specific",
+    "Following these steps ensures compatibility with your tenant",
+    "Estimated setup time: 15-20 minutes",
+    "The flow will run automatically once saved and enabled"
+  ]
+}

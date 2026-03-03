@@ -1,0 +1,512 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus",
+      "allowedValues": [
+        "eastus",
+        "eastus2",
+        "westus",
+        "westus3",
+        "swedencentral",
+        "uksouth",
+        "northcentralus",
+        "southcentralus",
+        "canadaeast",
+        "francecentral"
+      ],
+      "metadata": {
+        "description": "Azure region for all resources. Must support Azure OpenAI."
+      }
+    }
+  },
+  "variables": {
+    "suffix": "[uniqueString(resourceGroup().id)]",
+    "cosmosAccountName": "[concat('cosmos-openbrain-', variables('suffix'))]",
+    "openAIAccountName": "[concat('oai-openbrain-', variables('suffix'))]",
+    "functionAppName": "[concat('func-openbrain-', variables('suffix'))]",
+    "logicAppName": "[concat('logic-openbrain-', variables('suffix'))]",
+    "storageAccountName": "[concat('stopenbrain', variables('suffix'))]",
+    "logAnalyticsName": "[concat('openbrain-', variables('suffix'), '-logs')]",
+    "appInsightsName": "[concat('openbrain-', variables('suffix'), '-insights')]",
+    "appServicePlanName": "[concat(variables('functionAppName'), '-plan')]",
+    "teamsConnectionName": "[concat(variables('logicAppName'), '-teams')]",
+    "mcpAccessKey": "[uniqueString(resourceGroup().id, 'mcp-access-key')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2022-10-01",
+      "name": "[variables('logAnalyticsName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[variables('appInsightsName')]",
+      "location": "[parameters('location')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2024-05-15",
+      "name": "[variables('cosmosAccountName')]",
+      "location": "[parameters('location')]",
+      "kind": "GlobalDocumentDB",
+      "properties": {
+        "databaseAccountOfferType": "Standard",
+        "capabilities": [
+          {
+            "name": "EnableServerless"
+          }
+        ],
+        "locations": [
+          {
+            "locationName": "[parameters('location')]",
+            "failoverPriority": 0
+          }
+        ],
+        "disableLocalAuth": false
+      }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2024-05-15",
+      "name": "[concat(variables('cosmosAccountName'), '/openbrain')]",
+      "properties": {
+        "resource": {
+          "id": "openbrain"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2024-05-15",
+      "name": "[concat(variables('cosmosAccountName'), '/openbrain/thoughts')]",
+      "properties": {
+        "resource": {
+          "id": "thoughts",
+          "partitionKey": {
+            "paths": [
+              "/userId"
+            ],
+            "kind": "Hash"
+          },
+          "indexingPolicy": {
+            "automatic": true,
+            "includedPaths": [
+              {
+                "path": "/*"
+              }
+            ],
+            "excludedPaths": [
+              {
+                "path": "/embedding/*"
+              },
+              {
+                "path": "/\"_etag\"/?"
+              }
+            ],
+            "vectorIndexes": [
+              {
+                "path": "/embedding",
+                "type": "diskANN"
+              }
+            ]
+          },
+          "vectorEmbeddingPolicy": {
+            "vectorEmbeddings": [
+              {
+                "path": "/embedding",
+                "dataType": "float32",
+                "dimensions": 1536,
+                "distanceFunction": "cosine"
+              }
+            ]
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosAccountName'), 'openbrain')]"
+      ]
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2024-10-01",
+      "name": "[variables('openAIAccountName')]",
+      "location": "[parameters('location')]",
+      "kind": "OpenAI",
+      "sku": {
+        "name": "S0"
+      },
+      "properties": {
+        "customSubDomainName": "[variables('openAIAccountName')]",
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2024-10-01",
+      "name": "[concat(variables('openAIAccountName'), '/text-embedding-3-small')]",
+      "sku": {
+        "name": "Standard",
+        "capacity": 120
+      },
+      "properties": {
+        "model": {
+          "format": "OpenAI",
+          "name": "text-embedding-3-small",
+          "version": "1"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', variables('openAIAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2024-10-01",
+      "name": "[concat(variables('openAIAccountName'), '/gpt-4o-mini')]",
+      "sku": {
+        "name": "Standard",
+        "capacity": 30
+      },
+      "properties": {
+        "model": {
+          "format": "OpenAI",
+          "name": "gpt-4o-mini",
+          "version": "2024-07-18"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('openAIAccountName'), 'text-embedding-3-small')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-05-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "supportsHttpsTrafficOnly": true,
+        "minimumTlsVersion": "TLS1_2"
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2023-12-01",
+      "name": "[variables('appServicePlanName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Y1",
+        "tier": "Dynamic"
+      },
+      "properties": {
+        "reserved": true
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2023-12-01",
+      "name": "[variables('functionAppName')]",
+      "location": "[parameters('location')]",
+      "kind": "functionapp,linux",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "httpsOnly": true,
+        "siteConfig": {
+          "linuxFxVersion": "NODE|20",
+          "appSettings": [
+            {
+              "name": "AZURE_OPENAI_ENDPOINT",
+              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('openAIAccountName')), '2024-10-01').endpoint]"
+            },
+            {
+              "name": "AZURE_OPENAI_EMBEDDING_DEPLOYMENT",
+              "value": "text-embedding-3-small"
+            },
+            {
+              "name": "AZURE_OPENAI_CHAT_DEPLOYMENT",
+              "value": "gpt-4o-mini"
+            },
+            {
+              "name": "COSMOS_ENDPOINT",
+              "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName')), '2024-05-15').documentEndpoint]"
+            },
+            {
+              "name": "COSMOS_DATABASE",
+              "value": "openbrain"
+            },
+            {
+              "name": "COSMOS_CONTAINER",
+              "value": "thoughts"
+            },
+            {
+              "name": "MCP_ACCESS_KEY",
+              "value": "[variables('mcpAccessKey')]"
+            },
+            {
+              "name": "DEFAULT_USER_ID",
+              "value": "user-default"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';EndpointSuffix=', environment().suffixes.storage, ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2023-05-01').keys[0].value)]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~4"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "node"
+            },
+            {
+              "name": "WEBSITE_NODE_DEFAULT_VERSION",
+              "value": "~20"
+            },
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "1"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2020-02-02').InstrumentationKey]"
+            }
+          ],
+          "cors": {
+            "allowedOrigins": [
+              "https://portal.azure.com"
+            ]
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.CognitiveServices/accounts', variables('openAIAccountName'))]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName'))]",
+        "[resourceId('Microsoft.Insights/components', variables('appInsightsName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('teamsConnectionName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "displayName": "Open Brain Teams Connection",
+        "api": {
+          "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', parameters('location'), 'teams')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "[variables('logicAppName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "triggers": {
+            "When_a_new_channel_message_is_added": {
+              "type": "ApiConnectionNotification",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['teams']['connectionId']"
+                  }
+                },
+                "body": {
+                  "NotificationUrl": "@{listCallbackUrl()}"
+                },
+                "fetch": {
+                  "method": "get",
+                  "pathTemplate": {
+                    "template": "/trigger/beta/teams/{teamId}/channels/{channelId}/messages"
+                  }
+                }
+              }
+            }
+          },
+          "actions": {
+            "Check_for_brain_hashtag": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "contains": [
+                      "@triggerBody()?['body']?['content']",
+                      "#brain"
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Call_Capture_Function": {
+                  "type": "Http",
+                  "inputs": {
+                    "method": "POST",
+                    "uri": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2023-12-01').defaultHostName, '/api/capture')]",
+                    "headers": {
+                      "Content-Type": "application/json"
+                    },
+                    "body": {
+                      "userId": "@triggerBody()?['from']?['user']?['id']",
+                      "content": "@triggerBody()?['body']?['content']",
+                      "source": "teams",
+                      "teamsContext": {
+                        "teamId": "@triggerBody()?['channelIdentity']?['teamId']",
+                        "channelId": "@triggerBody()?['channelIdentity']?['channelId']",
+                        "messageId": "@triggerBody()?['id']",
+                        "from": "@triggerBody()?['from']?['user']?['displayName']"
+                      }
+                    }
+                  }
+                },
+                "Reply_in_Teams": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['teams']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "path": "/beta/teams/conversation/replyWithMessage/poster/Flow bot/location/@{triggerBody()?['channelIdentity']?['teamId']}/@{triggerBody()?['channelIdentity']?['channelId']}/@{triggerBody()?['id']}",
+                    "body": {
+                      "body": {
+                        "content": "<p>✅ <strong>Captured to Open Brain!</strong></p><p>Type: @{body('Call_Capture_Function')?['metadata']?['type']}</p><p>Topics: @{join(body('Call_Capture_Function')?['metadata']?['topics'], ', ')}</p>",
+                        "contentType": "html"
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Call_Capture_Function": [
+                      "Succeeded"
+                    ]
+                  }
+                }
+              },
+              "else": {
+                "actions": {}
+              }
+            }
+          },
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          }
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "teams": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('teamsConnectionName'))]",
+                "connectionName": "[variables('teamsConnectionName')]",
+                "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', parameters('location'), 'teams')]"
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/connections', variables('teamsConnectionName'))]",
+        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments",
+      "apiVersion": "2024-05-15",
+      "name": "[concat(variables('cosmosAccountName'), '/', guid(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName')), variables('functionAppName'), 'cosmos-data-contributor'))]",
+      "properties": {
+        "roleDefinitionId": "[concat(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName')), '/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002')]",
+        "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2023-12-01', 'Full').identity.principalId]",
+        "scope": "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName'))]",
+        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[guid(resourceId('Microsoft.CognitiveServices/accounts', variables('openAIAccountName')), variables('functionAppName'), 'openai-user')]",
+      "scope": "[concat('Microsoft.CognitiveServices/accounts/', variables('openAIAccountName'))]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]",
+        "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2023-12-01', 'Full').identity.principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', variables('openAIAccountName'))]",
+        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "functionAppUrl": {
+      "type": "string",
+      "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2023-12-01').defaultHostName)]"
+    },
+    "mcpEndpoint": {
+      "type": "string",
+      "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2023-12-01').defaultHostName, '/api/mcp')]"
+    },
+    "mcpAccessKey": {
+      "type": "string",
+      "value": "[variables('mcpAccessKey')]"
+    },
+    "captureEndpoint": {
+      "type": "string",
+      "value": "[concat('https://', reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2023-12-01').defaultHostName, '/api/capture')]"
+    },
+    "functionAppName": {
+      "type": "string",
+      "value": "[variables('functionAppName')]"
+    },
+    "teamsAuthLink": {
+      "type": "string",
+      "value": "[concat(environment().portal, '/#blade/Microsoft.Azure.EAPortal/ApiConnectionBlade/id/', resourceId('Microsoft.Web/connections', variables('teamsConnectionName')))]"
+    },
+    "claudeDesktopConfig": {
+      "type": "string",
+      "value": "[concat('{ \"mcpServers\": { \"openbrain\": { \"transport\": { \"type\": \"http\", \"baseUrl\": \"https://', reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2023-12-01').defaultHostName, '/api/mcp\" }, \"headers\": { \"X-MCP-Access-Key\": \"', variables('mcpAccessKey'), '\" } } } }')]"
+    },
+    "testCommand": {
+      "type": "string",
+      "value": "[concat('curl -X POST \"https://', reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2023-12-01').defaultHostName, '/api/mcp\" -H \"Content-Type: application/json\" -H \"X-MCP-Access-Key: ', variables('mcpAccessKey'), '\" -d ''{\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"id\":1}''')]"
+    }
+  }
+}
