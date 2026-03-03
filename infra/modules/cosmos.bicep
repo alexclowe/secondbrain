@@ -20,6 +20,7 @@ resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
     databaseAccountOfferType: 'Standard'
     capabilities: [
       { name: 'EnableServerless' }
+      { name: 'EnableNoSQLVectorSearch' }
     ]
     locations: [
       {

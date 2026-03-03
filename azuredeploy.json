@@ -73,6 +73,9 @@
         "capabilities": [
           {
             "name": "EnableServerless"
+          },
+          {
+            "name": "EnableNoSQLVectorSearch"
           }
         ],
         "locations": [
