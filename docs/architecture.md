@@ -35,7 +35,7 @@ This architecture ports the original Supabase/Slack/OpenRouter Second Brain syst
 - **Cosmos DB NoSQL:** Native vector support with DiskANN (GA as of late 2024), serverless model charges only for operations consumed, portal-based setup, JSON document flexibility
 
 **Container Configuration:**
-- **Database:** `openbrain`
+- **Database:** `secondbrain`
 - **Container:** `thoughts`
 - **Partition Key:** `/userId` (enables multi-user future extension; single user uses same value for all documents)
 - **Indexing Policy:**
@@ -112,7 +112,7 @@ const querySpec = {
 ### Function App Structure
 
 ```
-openbrain-functions/
+secondbrain-functions/
 ├── capture/
 │   └── index.js          // HTTP trigger for Teams → Cosmos
 ├── mcp-server/
@@ -317,7 +317,7 @@ const metadata = JSON.parse(response.choices[0].message.content);
 ```json
 {
   "mcpServers": {
-    "openbrain": {
+    "secondbrain": {
       "transport": {
         "type": "http",
         "baseUrl": "https://<your-function-app>.azurewebsites.net/api/mcp"

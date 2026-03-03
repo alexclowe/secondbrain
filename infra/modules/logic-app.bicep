@@ -6,7 +6,7 @@ param location string
 @description('Logic App name')
 param logicAppName string
 
-@description('Capture function URL (e.g., https://func-openbrain-xxx.azurewebsites.net/api/capture)')
+@description('Capture function URL (e.g., https://func-secondbrain-xxx.azurewebsites.net/api/capture)')
 param captureFunctionUrl string
 
 // Teams API connection (shell — requires manual OAuth authorization after deployment)
@@ -14,7 +14,7 @@ resource teamsConnection 'Microsoft.Web/connections@2016-06-01' = {
   name: '${logicAppName}-teams'
   location: location
   properties: {
-    displayName: 'Open Brain Teams Connection'
+    displayName: 'Second Brain Teams Connection'
     api: {
       id: subscriptionResourceId('Microsoft.Web/locations/managedApis', location, 'teams')
     }
@@ -97,7 +97,7 @@ resource logicApp 'Microsoft.Logic/workflows@2019-05-01' = {
                 path: '/beta/teams/conversation/replyWithMessage/poster/Flow bot/location/@{triggerBody()?[\'channelIdentity\']?[\'teamId\']}/@{triggerBody()?[\'channelIdentity\']?[\'channelId\']}/@{triggerBody()?[\'id\']}'
                 body: {
                   body: {
-                    content: '<p>✅ <strong>Captured to Open Brain!</strong></p><p>Type: @{body(\'Call_Capture_Function\')?[\'metadata\']?[\'type\']}</p><p>Topics: @{join(body(\'Call_Capture_Function\')?[\'metadata\']?[\'topics\'], \', \')}</p>'
+                    content: '<p>✅ <strong>Captured to Second Brain!</strong></p><p>Type: @{body(\'Call_Capture_Function\')?[\'metadata\']?[\'type\']}</p><p>Topics: @{join(body(\'Call_Capture_Function\')?[\'metadata\']?[\'topics\'], \', \')}</p>'
                     contentType: 'html'
                   }
                 }

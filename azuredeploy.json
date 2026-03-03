@@ -24,13 +24,13 @@
   },
   "variables": {
     "suffix": "[uniqueString(resourceGroup().id)]",
-    "cosmosAccountName": "[concat('cosmos-openbrain-', variables('suffix'))]",
-    "openAIAccountName": "[concat('oai-openbrain-', variables('suffix'))]",
-    "functionAppName": "[concat('func-openbrain-', variables('suffix'))]",
-    "logicAppName": "[concat('logic-openbrain-', variables('suffix'))]",
-    "storageAccountName": "[concat('stopenbrain', variables('suffix'))]",
-    "logAnalyticsName": "[concat('openbrain-', variables('suffix'), '-logs')]",
-    "appInsightsName": "[concat('openbrain-', variables('suffix'), '-insights')]",
+    "cosmosAccountName": "[concat('cosmos-secondbrain-', variables('suffix'))]",
+    "openAIAccountName": "[concat('oai-secondbrain-', variables('suffix'))]",
+    "functionAppName": "[concat('func-secondbrain-', variables('suffix'))]",
+    "logicAppName": "[concat('logic-secondbrain-', variables('suffix'))]",
+    "storageAccountName": "[concat('stsecbrain', variables('suffix'))]",
+    "logAnalyticsName": "[concat('secondbrain-', variables('suffix'), '-logs')]",
+    "appInsightsName": "[concat('secondbrain-', variables('suffix'), '-insights')]",
     "appServicePlanName": "[concat(variables('functionAppName'), '-plan')]",
     "teamsConnectionName": "[concat(variables('logicAppName'), '-teams')]",
     "mcpAccessKey": "[uniqueString(resourceGroup().id, 'mcp-access-key')]"
@@ -87,10 +87,10 @@
     {
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
       "apiVersion": "2024-05-15",
-      "name": "[concat(variables('cosmosAccountName'), '/openbrain')]",
+      "name": "[concat(variables('cosmosAccountName'), '/secondbrain')]",
       "properties": {
         "resource": {
-          "id": "openbrain"
+          "id": "secondbrain"
         }
       },
       "dependsOn": [
@@ -100,7 +100,7 @@
     {
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
       "apiVersion": "2024-05-15",
-      "name": "[concat(variables('cosmosAccountName'), '/openbrain/thoughts')]",
+      "name": "[concat(variables('cosmosAccountName'), '/secondbrain/thoughts')]",
       "properties": {
         "resource": {
           "id": "thoughts",
@@ -145,7 +145,7 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosAccountName'), 'openbrain')]"
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosAccountName'), 'secondbrain')]"
       ]
     },
     {
@@ -260,7 +260,7 @@
             },
             {
               "name": "COSMOS_DATABASE",
-              "value": "openbrain"
+              "value": "secondbrain"
             },
             {
               "name": "COSMOS_CONTAINER",
@@ -320,7 +320,7 @@
       "name": "[variables('teamsConnectionName')]",
       "location": "[parameters('location')]",
       "properties": {
-        "displayName": "Open Brain Teams Connection",
+        "displayName": "Second Brain Teams Connection",
         "api": {
           "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', parameters('location'), 'teams')]"
         }
@@ -404,7 +404,7 @@
                     "path": "/beta/teams/conversation/replyWithMessage/poster/Flow bot/location/@{triggerBody()?['channelIdentity']?['teamId']}/@{triggerBody()?['channelIdentity']?['channelId']}/@{triggerBody()?['id']}",
                     "body": {
                       "body": {
-                        "content": "<p>✅ <strong>Captured to Open Brain!</strong></p><p>Type: @{body('Call_Capture_Function')?['metadata']?['type']}</p><p>Topics: @{join(body('Call_Capture_Function')?['metadata']?['topics'], ', ')}</p>",
+                        "content": "<p>✅ <strong>Captured to Second Brain!</strong></p><p>Type: @{body('Call_Capture_Function')?['metadata']?['type']}</p><p>Topics: @{join(body('Call_Capture_Function')?['metadata']?['topics'], ', ')}</p>",
                         "contentType": "html"
                       }
                     }
@@ -502,7 +502,7 @@
     },
     "copilotMcpConfig": {
       "type": "string",
-      "value": "[concat('{ \"servers\": { \"openbrain\": { \"type\": \"http\", \"url\": \"https://', reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2023-12-01').defaultHostName, '/api/mcp\", \"headers\": { \"X-MCP-Access-Key\": \"', variables('mcpAccessKey'), '\" } } } }')]"
+      "value": "[concat('{ \"servers\": { \"secondbrain\": { \"type\": \"http\", \"url\": \"https://', reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2023-12-01').defaultHostName, '/api/mcp\", \"headers\": { \"X-MCP-Access-Key\": \"', variables('mcpAccessKey'), '\" } } } }')]"
     },
     "testCommand": {
       "type": "string",

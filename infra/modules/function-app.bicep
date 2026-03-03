@@ -62,7 +62,7 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
         { name: 'AZURE_OPENAI_EMBEDDING_DEPLOYMENT', value: 'text-embedding-3-small' }
         { name: 'AZURE_OPENAI_CHAT_DEPLOYMENT', value: 'gpt-4o-mini' }
         { name: 'COSMOS_ENDPOINT', value: cosmosEndpoint }
-        { name: 'COSMOS_DATABASE', value: 'openbrain' }
+        { name: 'COSMOS_DATABASE', value: 'secondbrain' }
         { name: 'COSMOS_CONTAINER', value: 'thoughts' }
         { name: 'MCP_ACCESS_KEY', value: mcpAccessKey }
         { name: 'DEFAULT_USER_ID', value: 'user-default' }

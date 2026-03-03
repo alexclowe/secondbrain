@@ -2,7 +2,7 @@
  * MCP Server — Azure Function
  * 
  * Implements Model Context Protocol (JSON-RPC 2.0) over HTTP
- * Provides 4 tools for GitHub Copilot / VS Code / any MCP client to interact with Open Brain
+ * Provides 4 tools for GitHub Copilot / VS Code / any MCP client to interact with Second Brain
  * 
  * MCP Protocol: https://spec.modelcontextprotocol.io/specification/2024-11-05/
  * Transport: Streamable HTTP (handles both POST for messages and GET for SSE)
@@ -73,7 +73,7 @@ const TOOLS = [
   },
   {
     name: 'brain_stats',
-    description: 'Get statistics about your Open Brain: total thoughts, breakdown by type, top topics.',
+    description: 'Get statistics about your Second Brain: total thoughts, breakdown by type, top topics.',
     inputSchema: {
       type: 'object',
       properties: {}
@@ -112,7 +112,7 @@ function handleInitialize(params) {
       tools: {}
     },
     serverInfo: {
-      name: 'openbrain',
+      name: 'secondbrain',
       version: '1.0.0'
     }
   };
@@ -187,7 +187,7 @@ async function handleToolsCall(params, context) {
         content: [{
           type: 'text',
           text: JSON.stringify({
-            summary: `Your Open Brain contains ${stats.totalThoughts} thoughts`,
+            summary: `Your Second Brain contains ${stats.totalThoughts} thoughts`,
             totalThoughts: stats.totalThoughts,
             byType: stats.byType,
             topTopics: stats.topTopics
@@ -227,7 +227,7 @@ async function handleToolsCall(params, context) {
         content: [{
           type: 'text',
           text: JSON.stringify({
-            message: '✅ Thought captured to Open Brain!',
+            message: '✅ Thought captured to Second Brain!',
             id: thought.id,
             type: metadata.type,
             topics: metadata.topics,
@@ -395,7 +395,7 @@ app.http('mcp-server', {
       return {
         status: 200,
         jsonBody: {
-          name: 'openbrain',
+          name: 'secondbrain',
           version: '1.0.0',
           protocol: MCP_PROTOCOL_VERSION,
           status: 'ok'

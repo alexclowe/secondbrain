@@ -1,6 +1,6 @@
 {
-  "name": "Capture Thought to Open Brain",
-  "description": "Automatically captures thoughts posted in Microsoft Teams with #brain or #capture hashtag and stores them in your Open Brain using Azure Functions.",
+  "name": "Capture Thought to Second Brain",
+  "description": "Automatically captures thoughts posted in Microsoft Teams with #brain or #capture hashtag and stores them in your Second Brain using Azure Functions.",
   "version": "1.0.0",
   "instructions": "This is a simplified template for building the Power Automate flow manually. Follow these steps in Power Automate designer:",
   
@@ -127,7 +127,7 @@
             "body": [
               {
                 "type": "TextBlock",
-                "text": "✅ Captured to Open Brain!",
+                "text": "✅ Captured to Second Brain!",
                 "weight": "Bolder",
                 "size": "Medium",
                 "color": "Good"
@@ -179,7 +179,7 @@
       "2. Click 'Create' → 'Automated cloud flow'",
       "3. Search for 'Microsoft Teams' trigger and select 'When a new channel message is posted'",
       "4. Follow steps 1-6 above, adding each action in order",
-      "5. Save the flow with a descriptive name (e.g., 'Open Brain Capture')",
+      "5. Save the flow with a descriptive name (e.g., 'Second Brain Capture')",
       "6. Test by posting '#brain Test thought' in your Teams channel"
     ],
     "prerequisites": [
@@ -200,7 +200,7 @@
   "example_usage": {
     "input_message": "#brain Discussed with Alice about implementing vector search for the knowledge base. Need to evaluate Cosmos DB vs Azure AI Search. Action: Schedule follow-up meeting next week.",
     "expected_output": {
-      "confirmation": "✅ Captured to Open Brain!",
+      "confirmation": "✅ Captured to Second Brain!",
       "metadata": {
         "type": "meeting_note",
         "topics": ["vector search", "knowledge base", "azure"],

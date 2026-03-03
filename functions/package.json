@@ -1,7 +1,7 @@
 {
-  "name": "openbrain-functions",
+  "name": "secondbrain-functions",
   "version": "1.0.0",
-  "description": "Azure Functions for Open Brain - Microsoft Edition",
+  "description": "Azure Functions for Second Brain - Microsoft Edition",
   "main": "index.js",
   "scripts": {
     "start": "func start",

@@ -1,4 +1,4 @@
-// main.bicep — Open Brain: One-Button Deploy
+// main.bicep — Second Brain: One-Button Deploy
 // Provisions everything: Cosmos DB, Azure OpenAI, Functions, Logic App, monitoring
 // Zero manual secrets — managed identity everywhere
 
@@ -21,12 +21,12 @@ param location string = 'eastus'
 
 // Auto-generated unique names
 var suffix = uniqueString(resourceGroup().id)
-var cosmosAccountName = 'cosmos-openbrain-${suffix}'
-var openAIAccountName = 'oai-openbrain-${suffix}'
-var functionAppName = 'func-openbrain-${suffix}'
-var logicAppName = 'logic-openbrain-${suffix}'
-var storageAccountName = 'stopenbrain${suffix}'
-var monitoringBaseName = 'openbrain-${suffix}'
+var cosmosAccountName = 'cosmos-secondbrain-${suffix}'
+var openAIAccountName = 'oai-secondbrain-${suffix}'
+var functionAppName = 'func-secondbrain-${suffix}'
+var logicAppName = 'logic-secondbrain-${suffix}'
+var storageAccountName = 'stsecbrain${suffix}'
+var monitoringBaseName = 'secondbrain-${suffix}'
 var mcpAccessKey = uniqueString(resourceGroup().id, 'mcp-access-key')
 
 // ─── Modules ─────────────────────────────────────────────────────────────────
@@ -121,7 +121,7 @@ output functionAppName string = functionApp.outputs.functionAppName
 output teamsAuthLink string = '${environment().portal}/#blade/Microsoft.Azure.EAPortal/ApiConnectionBlade/id/${logicApp.outputs.teamsConnectionId}'
 
 // VS Code MCP config JSON (ready to copy-paste into .vscode/mcp.json)
-output copilotMcpConfig string = '{ "servers": { "openbrain": { "type": "http", "url": "${functionApp.outputs.functionAppUrl}/api/mcp", "headers": { "X-MCP-Access-Key": "${mcpAccessKey}" } } } }'
+output copilotMcpConfig string = '{ "servers": { "secondbrain": { "type": "http", "url": "${functionApp.outputs.functionAppUrl}/api/mcp", "headers": { "X-MCP-Access-Key": "${mcpAccessKey}" } } } }'
 
 // Test command
 output testCommand string = 'curl -X POST "${functionApp.outputs.functionAppUrl}/api/mcp" -H "Content-Type: application/json" -H "X-MCP-Access-Key: ${mcpAccessKey}" -d \'{"jsonrpc":"2.0","method":"tools/list","id":1}\''

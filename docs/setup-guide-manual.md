@@ -97,8 +97,8 @@ Fill in the form:
 | Field | Value |
 |-------|-------|
 | **Subscription** | Your Azure subscription |
-| **Resource Group** | Create new: `openbrain-rg` |
-| **Account Name** | `openbrain-<yourname>` (e.g., `openbrain-alex`) — must be globally unique |
+| **Resource Group** | Create new: `secondbrain-rg` |
+| **Account Name** | `secondbrain-<yourname>` (e.g., `secondbrain-alex`) — must be globally unique |
 | **Location** | East US (closest to you, or pick your region) |
 | **Capacity Mode** | **Serverless** ← Important! This means you only pay for what you use |
 
@@ -110,7 +110,7 @@ Then click **Review + Create** → **Create**
 
 When the deployment finishes, you'll see: "Go to resource". Click it.
 
-**You now have:** Azure Cosmos DB account name, endpoint URL (e.g., `https://openbrain-alex.documents.azure.com:443/`)
+**You now have:** Azure Cosmos DB account name, endpoint URL (e.g., `https://secondbrain-alex.documents.azure.com:443/`)
 
 ---
 
@@ -125,19 +125,19 @@ In your Cosmos DB account, click **Data Explorer** (left sidebar)
 #### 2.2 — Create a Database
 
 1. Click **New Database**
-2. Database ID: `openbrain`
+2. Database ID: `secondbrain`
 3. Click **OK**
 
 #### 2.3 — Create a Container
 
 Now you'll create the "thoughts" container (like a table, but smarter):
 
-1. Under `openbrain`, click **New Container**
+1. Under `secondbrain`, click **New Container**
 2. Fill in:
 
 | Field | Value |
 |-------|-------|
-| **Database ID** | openbrain (already selected) |
+| **Database ID** | secondbrain (already selected) |
 | **Container ID** | thoughts |
 | **Partition key** | `/userId` (This allows future multi-user support) |
 
@@ -196,12 +196,12 @@ You'll need these to deploy the Azure Functions.
 
 While you're here:
 
-1. Copy **URI** (e.g., `https://openbrain-alex.documents.azure.com:443/`)
+1. Copy **URI** (e.g., `https://secondbrain-alex.documents.azure.com:443/`)
 2. Copy **Primary Key** (long string of random characters)
 
 **Your Credential Tracker (Part 1):**
 ```
-[ ] Cosmos DB Endpoint: https://openbrain-xxx.documents.azure.com:443/
+[ ] Cosmos DB Endpoint: https://secondbrain-xxx.documents.azure.com:443/
 [ ] Cosmos DB Primary Key: (long string)
 [ ] Cosmos DB Connection String: AccountEndpoint=...
 ```
@@ -220,7 +220,7 @@ This token lets your Azure Functions call GitHub Models API to generate embeddin
 
 | Field | Value |
 |-------|-------|
-| **Token name** | openbrain-token |
+| **Token name** | secondbrain-token |
 | **Expiration** | 90 days (or longer if you prefer) |
 | **Resource owner** | Your account |
 | **Repository access** | All repositories |
@@ -323,7 +323,7 @@ The Azure Functions code is in the `/functions` folder of this repository. It in
 
    | Field | Value |
    |-------|-------|
-   | **App name** | openbrain-functions |
+   | **App name** | secondbrain-functions |
    | **Runtime** | Node.js |
    | **Runtime version** | 20 LTS |
    | **Location** | Same as Cosmos DB (e.g., East US) |
@@ -344,8 +344,8 @@ The Azure Functions code is in the `/functions` folder of this repository. It in
 
    | Field | Value |
    |-------|-------|
-   | **Resource Group** | openbrain-rg (same as Cosmos DB) |
-   | **Function App name** | openbrain-functions |
+   | **Resource Group** | secondbrain-rg (same as Cosmos DB) |
+   | **Function App name** | secondbrain-functions |
    | **Runtime stack** | Node.js |
    | **Version** | 20 LTS |
    | **Operating System** | Linux |
@@ -383,7 +383,7 @@ Add these one by one:
 |------|-------|
 | `COSMOS_ENDPOINT` | Your Cosmos DB endpoint (from Step 3.2) |
 | `COSMOS_KEY` | Your Cosmos DB Primary Key (from Step 3.2) |
-| `COSMOS_DATABASE` | `openbrain` |
+| `COSMOS_DATABASE` | `secondbrain` |
 | `COSMOS_CONTAINER` | `thoughts` |
 | `GITHUB_PAT` | Your GitHub Personal Access Token (from Step 4.3) |
 | `MCP_ACCESS_KEY` | Create a random string (e.g., `my-secret-key-12345`) — you'll use this in Step 11 |
@@ -398,7 +398,7 @@ When done, click **Save** at the top.
 **Your Credential Tracker (Part 4):**
 ```
 [ ] MCP Access Key: (whatever you created above)
-[ ] Azure Function App URL: https://openbrain-functions.azurewebsites.net
+[ ] Azure Function App URL: https://secondbrain-functions.azurewebsites.net
 [ ] Capture Function Key: (copy from Manage Functions after deployment)
 ```
 
@@ -418,7 +418,7 @@ You'll need the function URLs and keys for the Power Automate flow and MCP confi
 
 **Your Credential Tracker (Part 5A):**
 ```
-[ ] Capture Function URL: https://openbrain-functions.azurewebsites.net/api/capture?code=xxxxx
+[ ] Capture Function URL: https://secondbrain-functions.azurewebsites.net/api/capture?code=xxxxx
 ```
 
 #### 8.2 — Get MCP Function Base URL
@@ -431,7 +431,7 @@ For the MCP server, you don't need a function key (it uses custom access key ins
 
 **Your Credential Tracker (Part 5B):**
 ```
-[ ] MCP Function Base URL: https://openbrain-functions.azurewebsites.net/api/mcp
+[ ] MCP Function Base URL: https://secondbrain-functions.azurewebsites.net/api/mcp
 ```
 
 ---
@@ -582,9 +582,9 @@ Create a file called `.vscode/mcp.json` in any workspace folder:
 ```json
 {
   "servers": {
-    "openbrain": {
+    "secondbrain": {
       "type": "http",
-      "url": "https://openbrain-functions.azurewebsites.net/api/mcp",
+      "url": "https://secondbrain-functions.azurewebsites.net/api/mcp",
       "headers": {
         "X-MCP-Access-Key": "YOUR-MCP-ACCESS-KEY-HERE"
       }
@@ -600,9 +600,9 @@ Open VS Code → Settings (JSON) and add:
 ```json
 {
   "github.copilot.chat.mcp.servers": {
-    "openbrain": {
+    "secondbrain": {
       "type": "http",
-      "url": "https://openbrain-functions.azurewebsites.net/api/mcp",
+      "url": "https://secondbrain-functions.azurewebsites.net/api/mcp",
       "headers": {
         "X-MCP-Access-Key": "YOUR-MCP-ACCESS-KEY-HERE"
       }
@@ -612,13 +612,13 @@ Open VS Code → Settings (JSON) and add:
 ```
 
 Replace:
-- `openbrain-functions.azurewebsites.net` with your actual Function App URL (from Step 8.1)
+- `secondbrain-functions.azurewebsites.net` with your actual Function App URL (from Step 8.1)
 - `YOUR-MCP-ACCESS-KEY-HERE` with the MCP access key you created in Step 7.2
 
 #### 11.3 — Verify the Connection
 
 1. Open GitHub Copilot Chat in VS Code
-2. You should see **openbrain** in the available MCP tools
+2. You should see **secondbrain** in the available MCP tools
 
 **Your Credential Tracker (Part 6):**
 ```
@@ -634,7 +634,7 @@ Now test the MCP connection.
 #### 12.1 — Open Copilot Chat
 
 1. Start a new Copilot Chat conversation in VS Code
-2. You should see **openbrain** listed in available tools
+2. You should see **secondbrain** listed in available tools
 
 #### 12.2 — Try a Search
 
@@ -945,7 +945,7 @@ Format output as:
 ### **Problem: GitHub Copilot can't find your brain**
 
 **Symptoms:**
-- You open Copilot Chat and don't see "openbrain" in available tools
+- You open Copilot Chat and don't see "secondbrain" in available tools
 - Or it shows "Unable to connect"
 
 **Check these:**
@@ -966,7 +966,7 @@ Format output as:
    - Open a terminal/PowerShell
    - Run:
      ```bash
-     curl -X POST https://openbrain-functions.azurewebsites.net/api/mcp \
+     curl -X POST https://secondbrain-functions.azurewebsites.net/api/mcp \
        -H "X-MCP-Access-Key: YOUR-MCP-ACCESS-KEY" \
        -H "Content-Type: application/json" \
        -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
@@ -1120,7 +1120,7 @@ Seriously. You now have:
 
 ```
 STEP 2 (Cosmos DB):
-[ ] Cosmos DB Endpoint: https://openbrain-xxx.documents.azure.com:443/
+[ ] Cosmos DB Endpoint: https://secondbrain-xxx.documents.azure.com:443/
 [ ] Cosmos DB Primary Key: (long string)
 [ ] Cosmos DB Connection String: AccountEndpoint=...
 
@@ -1132,14 +1132,14 @@ STEP 5 (Teams):
 [ ] Teams Team ID: (if captured)
 
 STEP 8 (Azure Functions):
-[ ] Capture Function URL: https://openbrain-functions.azurewebsites.net/api/capture?code=xxxxx
-[ ] MCP Function Base URL: https://openbrain-functions.azurewebsites.net/api/mcp
+[ ] Capture Function URL: https://secondbrain-functions.azurewebsites.net/api/capture?code=xxxxx
+[ ] MCP Function Base URL: https://secondbrain-functions.azurewebsites.net/api/mcp
 
 STEP 7 (Function Environment):
 [ ] MCP Access Key: (whatever you created)
 
 STEP 11 (GitHub Copilot):
-[ ] GitHub Copilot MCP Configured (openbrain server added)
+[ ] GitHub Copilot MCP Configured \(secondbrain server added\)
 ```
 
 ---

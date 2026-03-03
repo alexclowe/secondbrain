@@ -13,7 +13,7 @@ Second Brain is a personal knowledge system backed by Azure Cosmos DB with vecto
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Falexclowe%2Fsecondbrain%2Fmain%2Fazuredeploy.json)
 
 1. Click the button above → Azure Portal opens
-2. Select your **Subscription** and **Resource Group** (create new: `openbrain-rg`)
+2. Select your **Subscription** and **Resource Group** (create new: `secondbrain-rg`)
 3. Pick a **Region** (East US is fine)
 4. Click **Review + Create** → **Create**
 5. Wait 3–5 minutes ☕
@@ -39,7 +39,7 @@ Create a file called `.vscode/mcp.json` in any workspace:
 ```json
 {
   "servers": {
-    "openbrain": {
+    "secondbrain": {
       "type": "http",
       "url": "https://YOUR-FUNCTION-APP.azurewebsites.net/api/mcp",
       "headers": {
@@ -59,7 +59,7 @@ Open VS Code Settings (JSON) and add:
 ```json
 {
   "github.copilot.chat.mcp.servers": {
-    "openbrain": {
+    "secondbrain": {
       "type": "http",
       "url": "https://YOUR-FUNCTION-APP.azurewebsites.net/api/mcp",
       "headers": {
@@ -70,7 +70,7 @@ Open VS Code Settings (JSON) and add:
 }
 ```
 
-Open GitHub Copilot Chat and ask a question — you'll see "openbrain" in the available tools. Done.
+Open GitHub Copilot Chat and ask a question — you'll see "secondbrain" in the available tools. Done.
 
 ---
 

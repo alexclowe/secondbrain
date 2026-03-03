@@ -29,7 +29,7 @@ function getContainer() {
   if (container) return container;
 
   const endpoint = process.env.COSMOS_ENDPOINT;
-  const databaseId = process.env.COSMOS_DATABASE || 'openbrain';
+  const databaseId = process.env.COSMOS_DATABASE || 'secondbrain';
   const containerId = process.env.COSMOS_CONTAINER || 'thoughts';
 
   if (!endpoint) {

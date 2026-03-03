@@ -29,7 +29,7 @@ The Azure Portal opens with a deployment form. You fill in **3 fields**:
 | Field | What to Enter |
 |-------|--------------|
 | **Subscription** | Select your Azure subscription (usually auto-detected) |
-| **Resource Group** | Click "Create new" → type `openbrain-rg` |
+| **Resource Group** | Click "Create new" → type `secondbrain-rg` |
 | **Region** | Pick `East US` (or any region in the dropdown) |
 
 Click **"Review + Create"** → **"Create"**.
@@ -74,7 +74,7 @@ Go back to your deployment outputs (Resource Group → Deployments → your depl
 ```json
 {
   "servers": {
-    "openbrain": {
+    "secondbrain": {
       "type": "http",
       "url": "PASTE_YOUR_mcpEndpoint_HERE",
       "headers": {
@@ -85,7 +85,7 @@ Go back to your deployment outputs (Resource Group → Deployments → your depl
 }
 ```
 
-3. Open GitHub Copilot Chat — "openbrain" appears in available tools
+3. Open GitHub Copilot Chat — "secondbrain" appears in available tools
 
 ### For VS Code User Settings (All Workspaces)
 
@@ -95,7 +95,7 @@ Go back to your deployment outputs (Resource Group → Deployments → your depl
 ```json
 {
   "github.copilot.chat.mcp.servers": {
-    "openbrain": {
+    "secondbrain": {
       "type": "http",
       "url": "PASTE_YOUR_mcpEndpoint_HERE",
       "headers": {
@@ -214,7 +214,7 @@ If Azure OpenAI is blocked by enterprise policy, use the **GitHub Models fallbac
 
 ### Want to start fresh?
 
-Delete the resource group (`openbrain-rg`) in Azure Portal. Everything gets cleaned up. Re-deploy with the button.
+Delete the resource group (`secondbrain-rg`) in Azure Portal. Everything gets cleaned up. Re-deploy with the button.
 
 ---
 

@@ -62,7 +62,7 @@
 3. Azure Portal opens with the deployment wizard pre-filled
 4. User selects:
    - **Subscription** (dropdown — auto-detected)
-   - **Resource Group** (create new, e.g., "openbrain-rg")
+   - **Resource Group** (create new, e.g., "secondbrain-rg")
    - **Region** (dropdown, e.g., "East US")
 5. Clicks **"Review + Create"** → **"Create"**
 6. Waits 3-5 minutes while Azure provisions everything
@@ -109,7 +109,7 @@ User copies the JSON block, pastes it into their `.vscode/mcp.json` file. Done.
 │  │   Cosmos DB      │  │  Azure OpenAI   │  │  Function App   │  │
 │  │   (serverless)   │  │  (S0 tier)      │  │  (consumption)  │  │
 │  │                  │  │                  │  │                  │  │
-│  │  DB: openbrain   │  │  text-embedding  │  │  /api/capture   │  │
+│  │  DB: secondbrain   │  │  text-embedding  │  │  /api/capture   │  │
 │  │  Container:      │  │  -3-small       │  │  /api/mcp       │  │
 │  │   thoughts       │  │  gpt-4o-mini    │  │                  │  │
 │  │  Vector: DiskANN │  │                  │  │  Managed ID ──┐ │  │
@@ -152,9 +152,9 @@ resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
 
 resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-05-15' = {
   parent: cosmosAccount
-  name: 'openbrain'
+  name: 'secondbrain'
   properties: {
-    resource: { id: 'openbrain' }
+    resource: { id: 'secondbrain' }
   }
 }
 
@@ -257,7 +257,7 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
         { name: 'AZURE_OPENAI_EMBEDDING_DEPLOYMENT', value: 'text-embedding-3-small' }
         { name: 'AZURE_OPENAI_CHAT_DEPLOYMENT', value: 'gpt-4o-mini' }
         { name: 'COSMOS_ENDPOINT', value: cosmosAccount.properties.documentEndpoint }
-        { name: 'COSMOS_DATABASE', value: 'openbrain' }
+        { name: 'COSMOS_DATABASE', value: 'secondbrain' }
         { name: 'COSMOS_CONTAINER', value: 'thoughts' }
         { name: 'MCP_ACCESS_KEY', value: mcpAccessKey }
         { name: 'DEFAULT_USER_ID', value: 'user-default' }
@@ -504,7 +504,7 @@ function getContainer() {
   if (container) return container;
   
   const endpoint = process.env.COSMOS_ENDPOINT;
-  const databaseId = process.env.COSMOS_DATABASE || 'openbrain';
+  const databaseId = process.env.COSMOS_DATABASE || 'secondbrain';
   const containerId = process.env.COSMOS_CONTAINER || 'thoughts';
   
   if (!endpoint) throw new Error('COSMOS_ENDPOINT not set');
@@ -589,7 +589,7 @@ Removed: None (keep backward compat).
 | Parameter | Type | What user sees | Notes |
 |-----------|------|----------------|-------|
 | Subscription | dropdown | Auto-detected | Usually one option for MS employees |
-| Resource Group | text + create new | "openbrain-rg" (suggested) | Create new recommended |
+| Resource Group | text + create new | "secondbrain-rg" (suggested) | Create new recommended |
 | Region | dropdown | "East US" (default) | Must support Azure OpenAI |
 
 **That's it. Three fields.** No PAT. No secrets. No environment variables. No connection strings.
@@ -599,10 +599,10 @@ Removed: None (keep backward compat).
 | Parameter | Value | Source |
 |-----------|-------|--------|
 | `mcpAccessKey` | `uniqueString(resourceGroup().id, 'mcp')` | Auto-generated |
-| `cosmosAccountName` | `'cosmos-openbrain-${uniqueString(rg)}'` | Auto-generated |
-| `functionAppName` | `'func-openbrain-${uniqueString(rg)}'` | Auto-generated |
-| `openAIAccountName` | `'oai-openbrain-${uniqueString(rg)}'` | Auto-generated |
-| `logicAppName` | `'logic-openbrain-${uniqueString(rg)}'` | Auto-generated |
+| `cosmosAccountName` | `'cosmos-secondbrain-${uniqueString(rg)}'` | Auto-generated |
+| `functionAppName` | `'func-secondbrain-${uniqueString(rg)}'` | Auto-generated |
+| `openAIAccountName` | `'oai-secondbrain-${uniqueString(rg)}'` | Auto-generated |
+| `logicAppName` | `'logic-secondbrain-${uniqueString(rg)}'` | Auto-generated |
 
 ### Region constraints
 
@@ -633,9 +633,9 @@ Copy this JSON block into `.vscode/mcp.json` in any workspace:
 ```json
 {
   "servers": {
-    "openbrain": {
+    "secondbrain": {
       "type": "http",
-      "url": "https://func-openbrain-xxx.azurewebsites.net/api/mcp",
+      "url": "https://func-secondbrain-xxx.azurewebsites.net/api/mcp",
       "headers": {
         "X-MCP-Access-Key": "your-key-here"
       }
@@ -647,10 +647,10 @@ Copy this JSON block into `.vscode/mcp.json` in any workspace:
 ```json
 {
   "mcpServers": {
-    "openbrain": {
+    "secondbrain": {
       "transport": {
         "type": "http",
-        "baseUrl": "https://func-openbrain-abc123.azurewebsites.net/api/mcp"
+        "baseUrl": "https://func-secondbrain-abc123.azurewebsites.net/api/mcp"
       },
       "headers": {
         "X-MCP-Access-Key": "a7b3c9d2e1f0"
@@ -673,7 +673,7 @@ You should see a reply confirming the capture within a few seconds.
 Or test via command line:
 
 ```bash
-curl -X POST "https://func-openbrain-abc123.azurewebsites.net/api/mcp" \
+curl -X POST "https://func-secondbrain-abc123.azurewebsites.net/api/mcp" \
   -H "Content-Type: application/json" \
   -H "X-MCP-Access-Key: a7b3c9d2e1f0" \
   -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'

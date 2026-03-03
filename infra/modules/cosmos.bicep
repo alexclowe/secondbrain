@@ -7,7 +7,7 @@ param location string
 param accountName string
 
 @description('Database name')
-param databaseName string = 'openbrain'
+param databaseName string = 'secondbrain'
 
 @description('Container name')
 param containerName string = 'thoughts'
